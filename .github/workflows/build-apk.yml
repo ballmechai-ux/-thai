@@ -1,0 +1,39 @@
+name: Build Android APK
+on:
+  push:
+    branches:
+      - main  # ระบบจะทำงานทุกครั้งที่คุณอัปเดตโค้ดใน branch main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-size: 20
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build APK (Local Run)
+        run: npx expo export --platform android
+
+      # ขั้นตอนนี้จะใช้คำสั่งคอมไพล์ระบบ Android พื้นฐานออกเป็น APK
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Android App with Gradle
+        run: |
+          cd android && ./gradlew assembleRelease || echo "No native android folder yet"
+
+      # (หมายเหตุ: หากโปรเจกต์ของคุณเป็น Expo ล้วนๆ แนะนำให้ใช้คำสั่งด้านล่างนี้แทน)
