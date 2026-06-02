@@ -1,23 +1,15 @@
 {
   "expo": {
-    "name": "ปฏิทินไทย",
-    "slug": "thai-calendar",
+    "name": "Calendar Thai App",
+    "slug": "-thai",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#0f172a"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#0f172a"
-      },
-      "package": "com.ballmechai.thaicalendar"
+      "package": "com.ballmechaiux.calendarthai"
     }
   }
 }
