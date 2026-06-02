@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name":""ปฏิทินไทยแอป"",
-    "slug": "-thai",
+    "name": "ปฏิทินไทยแอป",
+    "slug": "calendar-thai",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
