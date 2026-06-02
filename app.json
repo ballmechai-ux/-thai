@@ -5,11 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#F4F7FA"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "android": {
-      "package": "com.ballmechaiux.calendarthai"
+      "package": "com.ballmechaiux.calendarthai",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      }
     }
   }
 }
