@@ -1,268 +1,172 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
 import { 
   StyleSheet, 
   Text, 
   View, 
-  ScrollView, 
   TouchableOpacity, 
-  Modal, 
+  FlatList, 
   TextInput, 
-  Switch,
-  Alert
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-
-// ---- DATA ----
-const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-const THAI_DAYS_SHORT = ["อา","จ","อ","พ","พฤ","ศ","ส"];
-
-const ALL_HOLIDAYS = {
-  "2026-01-01": { name: "วันขึ้นปีใหม่" },
-  "2026-03-03": { name: "วันมาฆบูชา" },
-  "2026-04-06": { name: "วันจักรี" },
-  "2026-04-13": { name: "วันสงกรานต์" },
-  "2026-04-14": { name: "วันสงกรานต์" },
-  "2026-04-15": { name: "วันสงกรานต์" },
-  "2026-05-01": { name: "วันแรงงานแห่งชาติ" },
-  "2026-05-05": { name: "วันฉัตรมงคล" },
-  "2026-05-31": { name: "วันวิสาขบูชา" },
-  "2026-06-03": { name: "วันเฉลิมพระชนมพรรษาสมเด็จพระราชินี" },
-  "2026-07-29": { name: "วันอาสาฬหบูชา" },
-  "2026-07-30": { name: "วันเข้าพรรษา" },
-  "2026-07-28": { name: "วันเฉลิมพระชนมพรรษา ร.10" },
-  "2026-08-12": { name: "วันแม่แห่งชาติ" },
-  "2026-10-13": { name: "วันนวมินทรมหาราช" },
-  "2026-10-23": { name: "วันปิยมหาราช" },
-  "2026-10-25": { name: "วันออกพรรษา" },
-  "2026-12-05": { name: "วันพ่อแห่งชาติ" },
-  "2026-12-10": { name: "วันรัฐธรรมนูญ" },
-  "2026-12-31": { name: "วันสิ้นปี" },
-};
-
-const LUNAR_DATA = {
-  "2026-06-01":{"phase":"แรม","day":1}, "2026-06-02":{"phase":"แรม","day":2}, "2026-06-03":{"phase":"แรม","day":3}
-};
-
-function getLunarMonthMap(year, month) {
-  const map = {};
-  const days = new Date(year, month + 1, 0).getDate();
-  for (let d = 1; d <= days; d++) {
-    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    map[d] = LUNAR_DATA[key] || { phase: d % 2 === 0 ? "ขึ้น" : "แรม", day: (d % 15) + 1 };
-  }
-  return map;
-}
-
-function toDateKey(y, m, d) { return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
+  Modal,
+  SafeAreaView
+} from 'react-native';
 
 export default function App() {
-  const today = new Date();
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [notes, setNotes] = useState({});
-  const [holyDayAlert, setHolyDayAlert] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [modalNote, setModalNote] = useState("");
-  const [dayDetail, setDayDetail] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState('');
+  const [events, setEvents] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newEventText, setNewEventText] = useState('');
 
-  const lunarMap = getLunarMonthMap(currentYear, currentMonth);
+  const months = [
+    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  ];
+  const daysOfWeek = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
 
-  const prevMonth = () => {
-    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
-    else setCurrentMonth(m => m - 1);
-  };
-  const nextMonth = () => {
-    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); }
-    else setCurrentMonth(m => m + 1);
-  };
+  // คำนวณวันในเดือน
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const calendarCells = [];
+  // ใส่ช่องว่างสำหรับวันก่อนเริ่มเดือน
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    calendarCells.push({ id: `empty-${i}`, date: null });
+  }
+  // ใส่จำนวณวันจริง
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    calendarCells.push({ id: `date-${i}`, date: i, dateStr: dateString });
+  }
 
-  const openAddNote = (dateKey) => {
-    setSelectedDate(dateKey);
-    setModalNote("");
-    setShowModal(true);
-  };
-
-  const saveNote = () => {
-    if (!modalNote.trim()) return;
-    const updated = { ...notes };
-    if (!updated[selectedDate]) updated[selectedDate] = [];
-    updated[selectedDate].push({ id: Date.now(), text: modalNote });
-    setNotes(updated);
-    setShowModal(false);
-    setDayDetail(null);
-    Alert.alert("สำเร็จ", "บันทึกกิจกรรมเรียบร้อยแล้ว");
+  const changeMonth = (direction) => {
+    const newDate = new Date(year, month + direction, 1);
+    setCurrentDate(newDate);
   };
 
-  const renderGrid = () => {
-    const totalSlots = daysInMonth + firstDay;
-    const gridItems = [];
+  const handleSelectDate = (dateStr) => {
+    if (!dateStr) return;
+    setSelectedDate(dateStr);
+    setModalVisible(true);
+  };
 
-    for (let i = 0; i < totalSlots; i++) {
-      if (i < firstDay) {
-        gridItems.push(<View key={`empty-${i}`} style={styles.dayCellEmpty} />);
-      } else {
-        const day = i - firstDay + 1;
-        const dateKey = toDateKey(currentYear, currentMonth, day);
-        const holiday = ALL_HOLIDAYS[dateKey];
-        const lunar = lunarMap[day];
-        const hasNote = notes[dateKey] && notes[dateKey].length > 0;
-
-        gridItems.push(
-          <TouchableOpacity 
-            key={`day-${day}`} 
-            style={styles.dayCell}
-            onPress={() => setDayDetail(dateKey)}
-          >
-            <Text style={styles.dayText}>{day}</Text>
-            {lunar && (
-              <Text style={[styles.lunarText, { color: lunar.phase === "ขึ้น" ? "#93c5fd" : "#f9a8d4" }]}>
-                {lunar.phase}{lunar.day}
-              </Text>
-            )}
-            <View style={styles.dotContainer}>
-              {holiday && <View style={[styles.dot, { backgroundColor: "#f87171" }]} />}
-              {hasNote && <View style={[styles.dot, { backgroundColor: "#34d399" }]} />}
-            </View>
-          </TouchableOpacity>
-        );
-      }
+  const addEvent = () => {
+    if (!newEventText.trim()) return;
+    const updatedEvents = { ...events };
+    if (!updatedEvents[selectedDate]) {
+      updatedEvents[selectedDate] = [];
     }
-    return gridItems;
+    updatedEvents[selectedDate].push(newEventText);
+    setEvents(updatedEvents);
+    setNewEventText('');
+    setModalVisible(false);
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      
-      {/* Header */}
+    <SafeAreaView style={styles.container}>
+      {/* ส่วนหัวปฏิทิน */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{THAI_MONTHS[currentMonth]} {currentYear + 543}</Text>
-        <View style={styles.alertRow}>
-          <Text style={styles.alertText}>แจ้งเตือนวันพระ</Text>
-          <Switch value={holyDayAlert} onValueChange={setHolyDayAlert} />
-        </View>
-      </View>
-
-      {/* Navigation */}
-      <View style={styles.navRow}>
-        <TouchableOpacity style={styles.navButton} onPress={prevMonth}>
-          <Text style={styles.navButtonText}>เดือนก่อนหน้า</Text>
+        <TouchableOpacity onPress={() => changeMonth(-1)}>
+          <Text style={styles.navButton}>{"<"}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={nextMonth}>
-          <Text style={styles.navButtonText}>เดือนถัดไป</Text>
+        <Text style={styles.headerTitle}>{months[month]} {year + 543}</Text>
+        <TouchableOpacity onPress={() => changeMonth(1)}>
+          <Text style={styles.navButton}>{">"}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Weekdays Header */}
-      <View style={styles.weekHeader}>
-        {THAI_DAYS_SHORT.map((d, idx) => (
-          <Text key={d} style={[styles.weekText, { color: idx === 0 ? "#f87171" : "#64748b" }]}>{d}</Text>
+      {/* ชื่อวันในสัปดาห์ */}
+      <View style={styles.weekDaysContainer}>
+        {daysOfWeek.map((day, index) => (
+          <Text key={index} style={styles.weekDayText}>{day}</Text>
         ))}
       </View>
 
-      {/* Calendar Grid */}
-      <ScrollView contentContainerStyle={styles.gridContainer}>
-        <View style={styles.grid}>
-          {renderGrid()}
+      {/* ตารางปฏิทิน */}
+      <FlatList
+        data={calendarCells}
+        numColumns={7}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => {
+          const hasEvent = item.dateStr && events[item.dateStr] && events[item.dateStr].length > 0;
+          return (
+            <TouchableOpacity 
+              style={[styles.cell, item.dateStr === selectedDate && styles.selectedCell]}
+              onPress={() => handleSelectDate(item.dateStr)}
+            >
+              <Text style={[styles.cellText, !item.date && styles.emptyCellText]}>
+                {item.date || ""}
+              </Text>
+              {hasEvent && <View style={styles.eventDot} />}
+            </TouchableOpacity>
+          );
+        }}
+      />
+
+      {/* รายการกิจกรรมของวันที่เลือกใต้ปฏิทิน */}
+      {selectedDate ? (
+        <View style={styles.eventListContainer}>
+          <Text style={styles.eventListTitle}>กิจกรรมวันที่ {selectedDate}:</Text>
+          {events[selectedDate] && events[selectedDate].length > 0 ? (
+            events[selectedDate].map((ev, index) => (
+              <Text key={index} style={styles.eventItem}>• {ev}</Text>
+            ))
+          ) : (
+            <Text style={styles.noEventText}>ไม่มีกิจกรรมในวันนี้</Text>
+          )}
         </View>
-      </ScrollView>
+      ) : null}
 
-      {/* Day Detail Modal */}
-      {dayDetail && (() => {
-        const [dy, dm, dd] = dayDetail.split("-").map(Number);
-        const holiday = ALL_HOLIDAYS[dayDetail];
-        const dayNotes = notes[dayDetail] || [];
-
-        return (
-          <Modal visible={true} transparent={true} animationType="slide">
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>วันที่ {dd} {THAI_MONTHS[dm-1]} {dy+543}</Text>
-                {holiday && <Text style={styles.holidayText}>วันหยุด: {holiday.name}</Text>}
-                
-                <Text style={styles.sectionTitle}>📝 รายการกิจกรรม:</Text>
-                {dayNotes.length === 0 ? (
-                  <Text style={styles.noNoteText}>ไม่มีกิจกรรมในวันนี้</Text>
-                ) : (
-                  dayNotes.map(n => <Text key={n.id} style={styles.noteItem}>• {n.text}</Text>)
-                )}
-
-                <View style={styles.modalBtnRow}>
-                  <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setDayDetail(null)}>
-                    <Text style={styles.btnText}>ปิด</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.btn, styles.btnSave]} onPress={() => openAddNote(dayDetail)}>
-                    <Text style={styles.btnText}>+ เพิ่มโน้ต</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
-        );
-      })()}
-
-      {/* Add Note Modal */}
-      <Modal visible={showModal} transparent={true} animationType="fade">
+      {/* ป๊อปอัพเพิ่มกิจกรรม */}
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>เพิ่มกิจกรรม</Text>
+            <Text style={styles.modalTitle}>เพิ่มกิจกรรมสำหรับ {selectedDate}</Text>
             <TextInput 
-              style={styles.input}
-              placeholder="กรอกรายละเอียดกิจกรรมที่นี่..."
-              placeholderTextColor="#64748b"
-              value={modalNote}
-              onChangeText={setModalNote}
-              multiline
+              style={styles.input} 
+              placeholder="พิมพ์ชื่อกิจกรรมที่นี่..." 
+              value={newEventText}
+              onChangeText={setNewEventText}
             />
-            <View style={styles.modalBtnRow}>
-              <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setShowModal(false)}>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setModalVisible(false)}>
                 <Text style={styles.btnText}>ยกเลิก</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.btnSave]} onPress={saveNote}>
+              <TouchableOpacity style={[styles.btn, styles.btnSave]} onPress={addEvent}>
                 <Text style={styles.btnText}>บันทึก</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0f172a", paddingTop: 50 },
-  header: { padding: 20, borderBottomWidth: 1, borderBottomColor: "rgba(99,102,241,0.2)", flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  headerTitle: { fontSize: 22, fontWeight: "bold", color: "#fff" },
-  alertRow: { flexDirection: "row", alignItems: "center" },
-  alertText: { color: "#64748b", marginRight: 8, fontSize: 12 },
-  navRow: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 20, marginTop: 10 },
-  navButton: { padding: 10, backgroundColor: "#1e1b4b", borderRadius: 8, borderWidth: 1, borderColor: "#4f46e5" },
-  navButtonText: { color: "#fff", fontSize: 14 },
-  weekHeader: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 10, marginTop: 10 },
-  weekText: { fontSize: 14, fontWeight: "600", width: 40, textAlign: "center" },
-  gridContainer: { paddingBottom: 40 },
-  grid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 10 },
-  dayCell: { width: "13.5%", height: 65, margin: "0.4%", backgroundColor: "rgba(30,27,75,0.4)", borderWidth: 1, borderColor: "rgba(99,102,241,0.1)", borderRadius: 8, padding: 4, justifyContent: "space-between" },
-  dayCellEmpty: { width: "13.5%", height: 65, margin: "0.4%" },
-  dayText: { color: "#fff", fontWeight: "bold", fontSize: 14 },
-  lunarText: { fontSize: 9 },
-  dotContainer: { flexDirection: "row", gap: 2 },
-  dot: { width: 5, height: 5, borderRadius: 2.5 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center" },
-  modalContent: { width: "85%", backgroundColor: "#0f172a", padding: 20, borderRadius: 12, borderWidth: 1, borderColor: "rgba(99,102,241,0.3)" },
-  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 10 },
-  holidayText: { color: "#f87171", fontSize: 14, marginBottom: 10 },
-  sectionTitle: { color: "#fff", fontSize: 14, marginTop: 10, fontWeight: "600" },
-  noNoteText: { color: "#64748b", fontSize: 13, marginVertical: 5 },
-  noteItem: { color: "#cbd5e1", fontSize: 14, marginVertical: 2 },
-  modalBtnRow: { flexDirection: "row", gap: 10, marginTop: 20 },
-  btn: { flex: 1, padding: 12, borderRadius: 8, alignItems: "center" },
-  btnCancel: { backgroundColor: "none", borderWidth: 1, borderColor: "#64748b" },
-  btnSave: { backgroundColor: "#4f46e5" },
-  btnText: { color: "#fff", fontWeight: "600" },
-  input: { width: "100%", backgroundColor: "#1e1b4b", borderColor: "#4f46e5", borderWidth: 1, borderRadius: 8, padding: 10, color: "#fff", height: 80, textAlignVertical: "top", marginTop: 10 }
+  container: { flex: 1, backgroundColor: '#fff', paddingTop: 40 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  navButton: { fontSize: 24, fontWeight: 'bold', color: '#007AFF', paddingHorizontal: 10 },
+  weekDaysContainer: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 10 },
+  weekDayText: { flex: 1, textAlign: 'center', fontWeight: '600', color: '#666' },
+  cell: { flex: 1, height: 55, justifyContent: 'center', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f0f0f0', position: 'relative' },
+  selectedCell: { backgroundColor: '#E3F2FD', borderRadius: 4 },
+  cellText: { fontSize: 16, color: '#333' },
+  emptyCellText: { color: '#ccc' },
+  eventDot: { width: 6, height: 6, backgroundColor: '#FF3B30', borderRadius: 3, position: 'absolute', bottom: 5 },
+  eventListContainer: { padding: 20, borderTopWidth: 1, borderTopColor: '#eee', height: 200 },
+  eventListTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
+  eventItem: { fontSize: 15, marginVertical: 4, color: '#444' },
+  noEventText: { color: '#999', fontStyle: 'italic' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '85%', backgroundColor: '#fff', padding: 20, borderRadius: 10, shadowOpacity: 0.25 },
+  modalTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 15 },
+  input: { borderBottomWidth: 1, borderBottomColor: '#ccc', paddingVertical: 8, marginBottom: 20, fontSize: 16 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
+  btn: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 5, marginLeft: 10 },
+  btnCancel: { backgroundColor: '#efefef' },
+  btnSave: { backgroundColor: '#007AFF' },
+  btnText: { fontWeight: '600' }
 });
