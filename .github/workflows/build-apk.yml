@@ -1,290 +1,46 @@
-import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  FlatList, 
-  TextInput, 
-  Modal,
-  SafeAreaView,
-  StatusBar
-} from 'react-native';
+name: Build Android APK
+on:
+  push:
+    branches:
+      - main
 
-export default function App() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState('');
-  const [events, setEvents] = useState({});
-  const [modalVisible, setModalVisible] = useState(false);
-  const [newEventText, setNewEventText] = useState('');
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-  const months = [
-    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-  ];
-  const daysOfWeek = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-  const calendarCells = [];
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    calendarCells.push({ id: `empty-${i}`, date: null });
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-    calendarCells.push({ id: `date-${i}`, date: i, dateStr: dateString });
-  }
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
 
-  const changeMonth = (direction) => {
-    const newDate = new Date(year, month + direction, 1);
-    setCurrentDate(newDate);
-  };
+      - name: Install dependencies
+        run: npm install
 
-  const handleSelectDate = (dateStr) => {
-    if (!dateStr) return;
-    setSelectedDate(dateStr);
-    setModalVisible(true);
-  };
+      - name: Prebuild Android
+        run: npx expo prebuild --platform android --no-install
 
-  const addEvent = () => {
-    if (!newEventText.trim()) return;
-    const updatedEvents = { ...events };
-    if (!updatedEvents[selectedDate]) {
-      updatedEvents[selectedDate] = [];
-    }
-    updatedEvents[selectedDate].push(newEventText);
-    setEvents(updatedEvents);
-    setNewEventText('');
-    setModalVisible(false);
-  };
+      - name: Build Android App with Gradle
+        run: |
+          cd android
+          ./gradlew assembleRelease
 
-  // แปลงตัวเลขเป็นเลขไทยสำหรับแสดงผล (ถ้าชอบแบบเลขอารบิกทั่วไป สามารถลบฟังก์ชันนี้ได้ครับ)
-  const toThaiNumber = (num) => {
-    if (!num) return "";
-    const thaiDigits = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
-    return num.toString().split('').map(x => isNaN(x) ? x : thaiDigits[x]).join('');
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      {/* การ์ดปฏิทินหลัก */}
-      <View style={styles.calendarCard}>
-        {/* ส่วนหัวปฏิทิน */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.navButtonContainer} onPress={() => changeMonth(-1)}>
-            <Text style={styles.navButton}>{"‹"}</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{months[month]} {toThaiNumber(year + 543)}</Text>
-          <TouchableOpacity style={styles.navButtonContainer} onPress={() => changeMonth(1)}>
-            <Text style={styles.navButton}>{"›"}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ชื่อวันในสัปดาห์ */}
-        <View style={styles.weekDaysContainer}>
-          {daysOfWeek.map((day, index) => (
-            <Text key={index} style={[styles.weekDayText, index === 0 && {color: '#FF3B30'}, index === 6 && {color: '#007AFF'}]}>
-              {day}
-            </Text>
-          ))}
-        </View>
-
-        {/* ตารางปฏิทิน */}
-        <FlatList
-          data={calendarCells}
-          numColumns={7}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            const hasEvent = item.dateStr && events[item.dateStr] && events[item.dateStr].length > 0;
-            const isSelected = item.dateStr === selectedDate;
-            const isToday = item.dateStr === new Date().toISOString().split('T')[0];
-
-            return (
-              <TouchableOpacity 
-                style={[
-                  styles.cell, 
-                  isSelected && styles.selectedCell,
-                  isToday && !isSelected && styles.todayCell
-                ]}
-                onPress={() => handleSelectDate(item.dateStr)}
-                disabled={!item.date}
-              >
-                <Text style={[
-                  styles.cellText, 
-                  isSelected && styles.selectedCellText,
-                  isToday && !isSelected && styles.todayCellText,
-                  !item.date && styles.emptyCellText
-                ]}>
-                  {toThaiNumber(item.date)}
-                </Text>
-                {hasEvent && <View style={[styles.eventDot, isSelected && styles.selectedEventDot]} />}
-              </TouchableOpacity>
-            );
-          }}
-        />
-      </View>
-
-      {/* ส่วนแสดงกิจกรรมด้านล่าง */}
-      <View style={styles.bottomCard}>
-        {selectedDate ? (
-          <View style={styles.eventListContainer}>
-            <Text style={styles.eventListTitle}>กิจกรรมประจำวันที่ {toThaiNumber(selectedDate.split('-')[2])}</Text>
-            {events[selectedDate] && events[selectedDate].length > 0 ? (
-              <FlatList
-                data={events[selectedDate]}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <View style={styles.eventItemCard}>
-                    <View style={styles.eventIndicator} />
-                    <Text style={styles.eventItemText}>{item}</Text>
-                  </View>
-                )}
-              />
-            ) : (
-              <View style={styles.noEventContainer}>
-                <Text style={styles.noEventText}>ยังไม่มีแผนงานหรืองานบันทึกในวันนี้</Text>
-              </View>
-            )}
-          </View>
-        ) : (
-          <View style={styles.noEventContainer}>
-            <Text style={styles.noEventText}>เลือกวันที่บนปฏิทินเพื่อดูหรือเพิ่มกิจกรรม</Text>
-          </View>
-        )}
-      </View>
-
-      {/* หน้าต่างป๊อปอัพเพิ่มกิจกรรม */}
-      <Modal visible={modalVisible} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>บันทึกกิจกรรมใหม่</Text>
-            <Text style={styles.modalSubtitle}>สำหรับวันที่ {selectedDate}</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="กรอกรายละเอียดกิจกรรมที่นี่..." 
-              placeholderTextColor="#999"
-              value={newEventText}
-              onChangeText={setNewEventText}
-              autoFocus={true}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setModalVisible(false)}>
-                <Text style={styles.btnCancelText}>ยกเลิก</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.btnSave]} onPress={addEvent}>
-                <Text style={styles.btnSaveText}>บันทึก</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F7FA' },
-  
-  // การ์ดปฏิทิน
-  calendarCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    margin: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: 20,
-    marginTop: 5 
-  },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1A1C24' },
-  navButtonContainer: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#F0F4F8',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navButton: { fontSize: 22, fontWeight: '600', color: '#4A5568', marginTop: -2 },
-  weekDaysContainer: { flexDirection: 'row', marginBottom: 12 },
-  weekDayText: { flex: 1, textAlign: 'center', fontWeight: '600', color: '#718096', fontSize: 13 },
-  
-  // ช่องวันที่
-  cell: { 
-    flex: 1, 
-    height: 48, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    margin: 2,
-    borderRadius: 14,
-    position: 'relative' 
-  },
-  cellText: { fontSize: 16, fontWeight: '500', color: '#2D3748' },
-  emptyCellText: { color: '#E2E8F0' },
-  
-  // สถานะพิเศษ
-  todayCell: { backgroundColor: '#EDF2F7' },
-  todayCellText: { color: '#4A5568', fontWeight: '700' },
-  selectedCell: { backgroundColor: '#007AFF' },
-  selectedCellText: { color: '#FFFFFF', fontWeight: '700' },
-  
-  // จุดกิจกรรม
-  eventDot: { width: 5, height: 5, backgroundColor: '#FF3B30', borderRadius: 2.5, position: 'absolute', bottom: 6 },
-  selectedEventDot: { backgroundColor: '#FFFFFF' },
-  
-  // การ์ดกิจกรรมด้านล่าง
-  bottomCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  eventListContainer: { flex: 1 },
-  eventListTitle: { fontSize: 18, fontWeight: '700', color: '#1A1C24', marginBottom: 16 },
-  eventItemCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#EDF2F7'
-  },
-  eventIndicator: { width: 4, height: 20, backgroundColor: '#007AFF', borderRadius: 2, marginRight: 12 },
-  eventItemText: { fontSize: 15, color: '#4A5568', fontWeight: '500' },
-  noEventContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 30 },
-  noEventText: { color: '#A0AEC0', fontSize: 15, textAlign: 'center' },
-  
-  // ป๊อปอัพโหมด
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(26, 28, 36, 0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { width: '88%', backgroundColor: '#FFFFFF', padding: 24, borderRadius: 24, elevation: 10 },
-  modalTitle: { fontSize: 19, fontWeight: '700', color: '#1A1C24', marginBottom: 4 },
-  modalSubtitle: { fontSize: 14, color: '#718096', marginBottom: 20 },
-  input: { backgroundColor: '#F8FAFC', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#2D3748', borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 24 },
-  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
-  btn: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, marginLeft: 12, minWidth: 90, alignItems: 'center' },
-  btnCancel: { backgroundColor: '#F1F5F9' },
-  btnCancelText: { color: '#64748B', fontWeight: '600', fontSize: 15 },
-  btnSave: { backgroundColor: '#007AFF' },
-  btnSaveText: { color: '#FFFFFF', fontWeight: '600', fontSize: 15 }
-});
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendar-app-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
