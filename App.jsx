@@ -24,55 +24,55 @@ export default function App() {
   ];
   const daysOfWeek = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
 
-  // 1. ระบบฐานข้อมูลวันสำคัญและวันพระ (สามารถมาเพิ่มวันอื่นๆ ในนี้ทีหลังได้ครับ)
+  // ฐานข้อมูลวันสำคัญ วันพระ และระบุวันหยุด (เพิ่ม shortName สำหรับเขียนลงบนช่องวันที่)
   const holidayData = {
-    // เดือน มกราคม (01)
-    "01-01": { name: "วันขึ้นปีใหม่", isBuddhaDay: false },
-    "01-16": { name: "วันครู", isBuddhaDay: false },
-    // เดือน กุมภาพันธ์ (02)
-    "02-12": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๒)", isBuddhaDay: true },
-    "02-19": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๒)", isBuddhaDay: true },
-    "02-27": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๓)", isBuddhaDay: true },
-    // เดือน มีนาคม (03)
-    "03-06": { name: "วันมาฆบูชา (วันพระใหญ่)", isBuddhaDay: true },
-    "03-14": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๓)", isBuddhaDay: true },
-    "03-21": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๓)", isBuddhaDay: true },
-    "03-29": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๔)", isBuddhaDay: true },
-    // เดือน เมษายน (04)
-    "04-06": { name: "วันจักรี / วันพระใหญ่", isBuddhaDay: true },
-    "04-13": { name: "วันสงกรานต์", isBuddhaDay: false },
-    "04-14": { name: "วันสงกรานต์ / วันครอบครัว", isBuddhaDay: false },
-    "04-15": { name: "วันสงกรานต์", isBuddhaDay: false },
-    "04-21": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๔)", isBuddhaDay: true },
-    "04-29": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๕)", isBuddhaDay: true },
-    // เดือน พฤษภาคม (05)
-    "05-01": { name: "วันแรงงานแห่งชาติ", isBuddhaDay: false },
-    "05-04": { name: "วันฉัตรมงคล", isBuddhaDay: false },
-    "05-06": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๕)", isBuddhaDay: true },
-    "05-13": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๕)", isBuddhaDay: true },
-    "05-22": { name: "วันวิสาขบูชา (วันพระใหญ่)", isBuddhaDay: true },
-    "05-30": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๖)", isBuddhaDay: true },
-    // เดือน มิถุนายน (06)
-    "06-03": { name: "วันเฉลิมพระชนมพรรษาพระราชินี", isBuddhaDay: false },
-    "06-11": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๖)", isBuddhaDay: true },
-    "06-19": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๗)", isBuddhaDay: true },
-    "06-26": { name: "วันพระ (ขึ้น ๑๕ ค่ำ เดือน ๗)", isBuddhaDay: true },
-    // เดือน กรกฎาคม (07)
-    "07-11": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๗)", isBuddhaDay: true },
-    "07-19": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๘)", isBuddhaDay: true },
-    "07-25": { name: "วันอาสาฬหบูชา (วันพระใหญ่)", isBuddhaDay: true },
-    "07-26": { name: "วันเข้าพรรษา", isBuddhaDay: false },
-    "07-28": { name: "วันเฉลิมพระชนมพรรษา ร.๑๐", isBuddhaDay: false },
-    // เดือน สิงหาคม (08)
-    "08-12": { name: "วันแม่แห่งชาติ", isBuddhaDay: false },
-    // เดือน ตุลาคม (10)
-    "10-13": { name: "วันคล้ายวันสวรรคต ร.๙", isBuddhaDay: false },
-    "10-23": { name: "วันปิยมหาราช", isBuddhaDay: false },
-    "10-24": { name: "วันออกพรรษา (วันพระใหญ่)", isBuddhaDay: true },
-    // เดือน ธันวาคม (12)
-    "12-05": { name: "วันพ่อแห่งชาติ", isBuddhaDay: false },
-    "12-10": { name: "วันรัฐธรรมนูญ", isBuddhaDay: false },
-    "12-31": { name: "วันสิ้นปี", isBuddhaDay: false },
+    // มกราคม
+    "01-01": { name: "วันขึ้นปีใหม่", shortName: "ปีใหม่", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "01-16": { name: "วันครู", shortName: "วันครู", isBuddhaDay: false, isGovernmentHoliday: false, isBankHoliday: false },
+    // กุมภาพันธ์
+    "02-12": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๒)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "02-19": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๒)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "02-27": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๓)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // มีนาคม
+    "03-06": { name: "วันมาฆบูชา", shortName: "มาฆบูชา", isBuddhaDay: true, isGovernmentHoliday: true, isBankHoliday: true },
+    "03-14": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๓)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "03-21": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๓)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "03-29": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๔)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // เมษายน
+    "04-06": { name: "วันจักรี", shortName: "วันจักรี", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "04-13": { name: "วันสงกรานต์", shortName: "สงกรานต์", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "04-14": { name: "วันสงกรานต์ / วันครอบครัว", shortName: "สงกรานต์", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "04-15": { name: "วันสงกรานต์", shortName: "สงกรานต์", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "04-21": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๔)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "04-29": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๕)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // พฤษภาคม
+    "05-01": { name: "วันแรงงานแห่งชาติ", shortName: "วันแรงงาน", isBuddhaDay: false, isGovernmentHoliday: false, isBankHoliday: true },
+    "05-04": { name: "วันฉัตรมงคล", shortName: "ฉัตรมงคล", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "05-06": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๕)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "05-13": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๕)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "05-22": { name: "วันวิสาขบูชา", shortName: "วิสาขบูชา", isBuddhaDay: true, isGovernmentHoliday: true, isBankHoliday: true },
+    "05-30": { name: "วันพระ (แรม ๘ ค่ำ เดือน ๖)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // มิถุนายน
+    "06-03": { name: "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี", shortName: "ควีน ร.๑๐", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "06-11": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๖)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "06-19": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๗)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "06-26": { name: "วันพระ (ขึ้น ๑๕ ค่ำ เดือน ๗)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // กรกฎาคม
+    "07-11": { name: "วันพระ (แรม ๑๕ ค่ำ เดือน ๗)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "07-19": { name: "วันพระ (ขึ้น ๘ ค่ำ เดือน ๘)", shortName: "", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    "07-25": { name: "วันอาสาฬหบูชา", shortName: "อาสาฬหฯ", isBuddhaDay: true, isGovernmentHoliday: true, isBankHoliday: true },
+    "07-26": { name: "วันเข้าพรรษา", shortName: "เข้าพรรษา", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: false },
+    "07-28": { name: "วันเฉลิมพระชนมพรรษา ร.๑๐", shortName: "วัน ร.๑๐", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    // สิงหาคม
+    "08-12": { name: "วันแม่แห่งชาติ", shortName: "วันแม่", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    // ตุลาคม
+    "10-13": { name: "วันคล้ายวันสวรรคต ร.๙", shortName: "วัน ร.๙", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "10-23": { name: "วันปิยมหาราช", shortName: "ปิยมหาราช", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "10-24": { name: "วันออกพรรษา", shortName: "ออกพรรษา", isBuddhaDay: true, isGovernmentHoliday: false, isBankHoliday: false },
+    // ธันวาคม
+    "12-05": { name: "วันพ่อแห่งชาติ", shortName: "วันพ่อ", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "12-10": { name: "วันรัฐธรรมนูญ", shortName: "รัฐธรรมนูญ", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
+    "12-31": { name: "วันสิ้นปี", shortName: "วันสิ้นปี", isBuddhaDay: false, isGovernmentHoliday: true, isBankHoliday: true },
   };
 
   const year = currentDate.getFullYear();
@@ -134,12 +134,28 @@ export default function App() {
     return `${toThaiNumber(dayNum)} ${months[monthNum]} ${toThaiNumber(yearNum)}`;
   };
 
-  // 2. ฟังก์ชันตรวจสอบวันสำคัญและวันพระจากวันที่
   const getHolidayInfo = (dateStr) => {
     if (!dateStr) return null;
     const parts = dateStr.split('-');
-    const monthDayKey = `${parts[1]}-${parts[2]}`; // ดึงเฉพาะ "MM-DD"
+    const monthDayKey = `${parts[1]}-${parts[2]}`;
     return holidayData[monthDayKey] || null;
+  };
+
+  const getHolidayTypeLabel = (holiday) => {
+    if (!holiday) return "";
+    if (holiday.isGovernmentHoliday && holiday.isBankHoliday) {
+      return "🔴 วันหยุดราชการ และ วันหยุดธนาคาร";
+    }
+    if (holiday.isGovernmentHoliday) {
+      return "🏛️ วันหยุดราชการ (ธนาคารเปิดทำการ)";
+    }
+    if (holiday.isBankHoliday) {
+      return "💵 วันหยุดธนาคาร (ราชการเปิดทำการ)";
+    }
+    if (holiday.isBuddhaDay) {
+      return "🪷 วันพระ / วันปฏิบัติธรรม";
+    }
+    return "⭐ วันสำคัญ";
   };
 
   return (
@@ -178,34 +194,49 @@ export default function App() {
             const isSelected = item.dateStr === selectedDate;
             const isToday = item.dateStr === new Date().toISOString().split('T')[0];
             
-            // เช็คว่าเป็นวันพระหรือวันสำคัญไหม
             const holiday = getHolidayInfo(item.dateStr);
             const isBuddhaDay = holiday && holiday.isBuddhaDay;
+            const isPublicHoliday = holiday && (holiday.isGovernmentHoliday || holiday.isBankHoliday);
+            const holidayLabel = holiday && holiday.shortName ? holiday.shortName : "";
 
             return (
               <TouchableOpacity 
                 style={[
                   styles.cell, 
                   isSelected && styles.selectedCell,
-                  isToday && !isSelected && styles.todayCell
+                  isToday && !isSelected && styles.todayCell,
+                  isPublicHoliday && !isSelected && styles.publicHolidayCell
                 ]}
                 onPress={() => handleSelectDate(item.dateStr)}
                 disabled={!item.date}
               >
-                {/* ถ้าเป็นวันพระ แสดงรูปพระ 🪷 หรือ 🙏 ข้างบนตัวเลข */}
+                {/* 1. เปลี่ยนจากรูปพระ 🙏 เป็น รูปดอกบัว 🪷 สีทอง */}
                 {isBuddhaDay && (
-                  <Text style={[styles.buddhaIcon, isSelected && { color: '#FFF' }]}>🙏</Text>
+                  <Text style={[styles.buddhaIcon, isSelected && { color: '#FFF' }]}>🪷</Text>
                 )}
                 
                 <Text style={[
                   styles.cellText, 
                   isSelected && styles.selectedCellText,
                   isToday && !isSelected && styles.todayCellText,
-                  isBuddhaDay && !isSelected && { color: '#E6A23C', fontWeight: '700' }, // ไฮไลต์ตัวเลขวันพระเป็นสีทอง
+                  isPublicHoliday && !isSelected && { color: '#FF3B30' }, 
+                  isBuddhaDay && !isSelected && !isPublicHoliday && { color: '#E6A23C', fontWeight: '700' },
                   !item.date && styles.emptyCellText
                 ]}>
                   {item.date ? toThaiNumber(item.date) : ""}
                 </Text>
+
+                {/* 2. เขียนชื่อวันหยุดย่อๆ ลงบนช่องวันที่ใต้ตัวเลข */}
+                {item.date && holidayLabel !== "" && (
+                  <Text 
+                    numberOfLines={1} 
+                    ellipsizeMode="tail" 
+                    style={[styles.holidayCellLabel, isSelected && { color: '#FFF' }]}
+                  >
+                    {holidayLabel}
+                  </Text>
+                )}
+
                 {hasEvent && <View style={[styles.eventDot, isSelected && styles.selectedEventDot]} />}
               </TouchableOpacity>
             );
@@ -213,30 +244,36 @@ export default function App() {
         />
       </View>
 
-      {/* บอร์ดแสดงรายละเอียดกิจกรรมและวันสำคัญด้านล่าง */}
+      {/* บอร์ดแสดงรายละเอียดด้านล่าง */}
       <View style={styles.bottomCard}>
         {selectedDate ? (
           <View style={styles.eventListContainer}>
             <View style={styles.bottomHeaderRow}>
               <Text style={styles.eventListTitle}>วันที่ {getThaiDayLabel(selectedDate)}</Text>
-              
-              {/* ปุ่มกดเพื่อเพิ่มกิจกรรมส่วนตัว */}
               <TouchableOpacity style={styles.addEventBtn} onPress={openAddEventModal}>
                 <Text style={styles.addEventBtnText}>+ บันทึกงาน</Text>
               </TouchableOpacity>
             </View>
 
-            {/* 3. ส่วนแสดงข้อมูลวันสำคัญที่ระบบตรวจเจอ */}
+            {/* ส่วนแสดงข้อมูลวันสำคัญ/วันหยุด */}
             {getHolidayInfo(selectedDate) && (
-              <View style={[styles.holidayCard, getHolidayInfo(selectedDate).isBuddhaDay ? styles.buddhaCardBg : styles.normalHolidayCardBg]}>
-                <Text style={styles.holidayEmoji}>
-                  {getHolidayInfo(selectedDate).isBuddhaDay ? "🔴 วันพระใหญ่ / วันปฏิบัติธรรม" : "⭐ วันสำคัญ"}
+              <View style={[
+                styles.holidayCard, 
+                getHolidayInfo(selectedDate).isGovernmentHoliday || getHolidayInfo(selectedDate).isBankHoliday
+                  ? styles.redHolidayCardBg 
+                  : getHolidayInfo(selectedDate).isBuddhaDay ? styles.buddhaCardBg : styles.normalHolidayCardBg
+              ]}>
+                <Text style={[
+                  styles.holidayTypeLabel,
+                  (getHolidayInfo(selectedDate).isGovernmentHoliday || getHolidayInfo(selectedDate).isBankHoliday) && { color: '#D90429' },
+                  getHolidayInfo(selectedDate).isBuddhaDay && !getHolidayInfo(selectedDate).isGovernmentHoliday && { color: '#E6A23C' }
+                ]}>
+                  {getHolidayTypeLabel(getHolidayInfo(selectedDate))}
                 </Text>
                 <Text style={styles.holidayNameText}>{getHolidayInfo(selectedDate).name}</Text>
               </View>
             )}
 
-            {/* ส่วนแสดงกิจกรรมส่วนตัวที่ผู้ใช้พิมพ์บันทึกไว้ */}
             <Text style={styles.sectionSubTitle}>บันทึกกิจกรรมส่วนตัว:</Text>
             {events[selectedDate] && events[selectedDate].length > 0 ? (
               <FlatList
@@ -293,17 +330,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F4F7FA' },
-  calendarCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    margin: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
-  },
+  calendarCard: { backgroundColor: '#FFFFFF', borderRadius: 24, margin: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 3 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, marginTop: 5 },
   headerTitle: { fontSize: 19, fontWeight: '700', color: '#1A1C24' },
   navButtonContainer: { width: 40, height: 40, backgroundColor: '#F0F4F8', borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
@@ -311,34 +338,36 @@ const styles = StyleSheet.create({
   weekDaysContainer: { flexDirection: 'row', marginBottom: 12 },
   weekDayText: { flex: 1, textAlign: 'center', fontWeight: '600', color: '#718096', fontSize: 13 },
   
-  // ช่องวันที่ + จัดตำแหน่งรูปพระ
-  cell: { flex: 1, height: 48, justifyContent: 'center', alignItems: 'center', margin: 2, borderRadius: 12, position: 'relative' },
-  cellText: { fontSize: 15, fontWeight: '600', color: '#2D3748', marginTop: 4 },
-  buddhaIcon: { fontSize: 10, position: 'absolute', top: 2, color: '#E6A23C' },
+  // ปรับขนาดช่องวันที่ให้สูงขึ้นเล็กน้อย (จาก 48 เป็น 52) เพื่อรองรับตัวอักษรชื่อวันหยุดย่อด้านล่าง
+  cell: { flex: 1, height: 52, justifyContent: 'center', alignItems: 'center', margin: 2, borderRadius: 12, position: 'relative text' },
+  cellText: { fontSize: 14, fontWeight: '700', color: '#2D3748', marginTop: 2 },
+  buddhaIcon: { fontSize: 11, position: 'absolute', top: 1, color: '#E6A23C' },
+  
+  // ตัวอักษรกำกับชื่อวันหยุดขนาดจิ๋วในช่องวันที่
+  holidayCellLabel: { fontSize: 8, color: '#D90429', fontWeight: '600', marginTop: 1, textAlign: 'center', width: '95%' },
+  
   emptyCellText: { color: '#E2E8F0' },
   todayCell: { backgroundColor: '#EDF2F7' },
   todayCellText: { color: '#4A5568', fontWeight: '700' },
   selectedCell: { backgroundColor: '#007AFF' },
   selectedCellText: { color: '#FFFFFF', fontWeight: '700' },
-  eventDot: { width: 5, height: 5, backgroundColor: '#FF3B30', borderRadius: 2.5, position: 'absolute', bottom: 2 },
+  publicHolidayCell: { backgroundColor: '#FFEBEB' },
+  eventDot: { width: 4, height: 4, backgroundColor: '#FF3B30', borderRadius: 2, position: 'absolute', bottom: 1 },
   selectedEventDot: { backgroundColor: '#FFFFFF' },
   
-  // บอร์ดด้านล่าง
   bottomCard: { flex: 1, backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.03, shadowRadius: 12, elevation: 5 },
   eventListContainer: { flex: 1 },
   bottomHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   eventListTitle: { fontSize: 17, fontWeight: '700', color: '#1A1C24' },
   sectionSubTitle: { fontSize: 14, fontWeight: '700', color: '#718096', marginTop: 14, marginBottom: 8 },
-  
-  // ปุ่มเพิ่มงานแบบใหม่แยกสัดส่วน
   addEventBtn: { backgroundColor: '#E8F2FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
   addEventBtnText: { color: '#007AFF', fontWeight: '700', fontSize: 13 },
   
-  // การ์ดแสดงวันสำคัญ/วันพระ
   holidayCard: { padding: 12, borderRadius: 14, marginBottom: 10, borderWidth: 1 },
+  redHolidayCardBg: { backgroundColor: '#FFF0F2', borderColor: '#FFCCD5' },
   buddhaCardBg: { backgroundColor: '#FFF9E6', borderColor: '#FFE699' },
   normalHolidayCardBg: { backgroundColor: '#F0F9EB', borderColor: '#E1F3D8' },
-  holidayEmoji: { fontSize: 12, fontWeight: '700', color: '#E6A23C', marginBottom: 2 },
+  holidayTypeLabel: { fontSize: 12, fontWeight: '700', color: '#718096', marginBottom: 2 },
   holidayNameText: { fontSize: 15, fontWeight: '700', color: '#2C3E50' },
   
   eventItemCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: 14, borderRadius: 16, marginBottom: 8, borderWidth: 1, borderColor: '#EDF2F7' },
