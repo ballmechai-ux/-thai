@@ -19,16 +19,27 @@ export default function App() {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [newEventText, setNewEventText] = useState('');
   
-  // 🎨 สถานะระบบตั้งค่า: สีพื้นหลัง และ ขนาดหน้าจอ
-  const [bgColor, setBgColor] = useState('#F4F7FA');
-  const [calendarSize, setCalendarSize] = useState('normal'); // ตัวเลือก: 'normal', 'large', 'xlarge'
+  // 🎨 สถานะระบบตั้งค่า
+  const [bgColor, setBgColor] = useState('#F4F7FA'); // สีพื้นหลังแอป
+  const [calendarSize, setCalendarSize] = useState('normal'); // ขนาดหน้าจอปฏิทิน
+  const [selectedCellColor, setSelectedCellColor] = useState('#007AFF'); // สีไฮไลต์ช่องวันที่เลือก (เริ่มต้นเป็นสีน้ำเงิน)
 
+  // รายการสีพื้นหลังแอป
   const themeColors = [
     { id: 'default', name: 'ฟ้ามินิมอล', value: '#F4F7FA' },
     { id: 'cream', name: 'ครีมละมุน', value: '#FDFBF7' },
     { id: 'green', name: 'เขียวสบายตา', value: '#F0F7F4' },
     { id: 'pink', name: 'ชมพูพาสเทล', value: '#FFF0F5' },
     { id: 'dark', name: 'เทาโมเดิร์น', value: '#E2E8F0' },
+  ];
+
+  // 🎯 รายการสีไฮไลต์ช่องวันที่ถูกเลือก
+  const highlightColors = [
+    { id: 'blue', name: 'น้ำเงินเด่นชัด', value: '#007AFF' },
+    { id: 'orange', name: 'ส้มพลังงาน', value: '#FF9500' },
+    { id: 'green', name: 'เขียวธรรมชาติ', value: '#34C759' },
+    { id: 'red', name: 'แดงร้อนแรง', value: '#FF3B30' },
+    { id: 'purple', name: 'ม่วงพรีเมียม', value: '#5856D6' },
   ];
 
   // 📐 ฟังก์ชันคำนวณขนาดอักษรและช่องตารางตามขนาดที่เลือก
@@ -178,7 +189,7 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* หัววันในสัปดาห์ (ขยายตามขนาดปฏิทิน) */}
+        {/* หัววันในสัปดาห์ */}
         <View style={styles.weekDaysContainer}>
           {daysOfWeek.map((day, index) => (
             <Text 
@@ -195,7 +206,7 @@ export default function App() {
           ))}
         </View>
 
-        {/* ตารางวันที่แบบแบ่งช่อง Grid ตอบสนองต่อการขยายหน้าจอ */}
+        {/* ตารางวันที่แบบแบ่งช่อง Grid */}
         <View style={styles.gridContainer}>
           <FlatList
             data={calendarCells}
@@ -215,12 +226,13 @@ export default function App() {
                 <TouchableOpacity 
                   style={[
                     styles.cell, 
-                    { height: getSizeStyle('cellHeight') }, // ปรับความสูงของแต่ละช่องตาราง
-                    isSelected && styles.selectedCell,
+                    { height: getSizeStyle('cellHeight') }, 
+                    // 🎯 นำค่า selectedCellColor จากตั้งค่ามาใช้เปลี่ยนสีพื้นหลังช่องที่เลือกแบบ Dynamic
+                    isSelected && { backgroundColor: selectedCellColor, borderColor: selectedCellColor },
                     isToday && !isSelected && styles.todayCell,
                     isPublicHoliday && !isSelected && styles.publicHolidayCell
                   ]}
-                  onPress={() => handleSelectDate(item.dateStr)}
+                  onPress={() => setSelectedDate(item.dateStr)}
                   disabled={!item.date}
                 >
                   {isBuddhaDay && (
@@ -229,7 +241,7 @@ export default function App() {
                   
                   <Text style={[
                     styles.cellText, 
-                    { fontSize: getSizeStyle('dateText') }, // ปรับขนาดตัวเลขวันที่
+                    { fontSize: getSizeStyle('dateText') }, 
                     isSelected && styles.selectedCellText,
                     isToday && !isSelected && styles.todayCellText,
                     isPublicHoliday && !isSelected && { color: '#FF3B30' }, 
@@ -280,7 +292,7 @@ export default function App() {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                   <View style={styles.eventItemCard}>
-                    <View style={styles.eventIndicator} />
+                    <View style={[styles.eventIndicator, { backgroundColor: selectedCellColor }]} />
                     <Text style={styles.eventItemText}>{item}</Text>
                   </View>
                 )}
@@ -290,17 +302,17 @@ export default function App() {
             )}
           </View>
         ) : (
-          <Text style={styles.noEventText}>เลือกวันที่บนตารางปฏิทินเพื่อดูรายละเอียด</Text>
+          <Text style={styles.noEventText}>เลือกวันที่บนตารางปฏิทินเพื่อดูรายละเอียดชั้นล่าง</Text>
         )}
       </View>
 
-      {/* ⚙️ หน้าต่างป๊อปอัพ "ตั้งค่าแอป" ปรับแต่งสีพื้นหลัง และ ขนาดหน้าปฏิทิน */}
+      {/* ⚙️ หน้าต่างป๊อปอัพ "ตั้งค่าแอป" */}
       <Modal visible={settingsVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>⚙️ ตั้งค่าแอปพลิเคชัน</Text>
             
-            {/* ส่วนที่ 1: เลือกขนาดหน้าจอ */}
+            {/* 1. เลือกขนาดหน้าจอ */}
             <Text style={styles.sectionDividerText}>🔍 ขนาดหน้าปฏิทิน</Text>
             <View style={styles.sizeSelectorContainer}>
               <TouchableOpacity 
@@ -323,26 +335,51 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* ส่วนที่ 2: เลือกสีพื้นหลัง */}
-            <Text style={styles.sectionDividerText}>🎨 สีพื้นหลังตัวแอป</Text>
-            <FlatList
-              data={themeColors}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
-                  style={[
-                    styles.colorOptionRow, 
-                    bgColor === item.value && styles.activeColorOption,
-                    { borderLeftColor: item.value }
-                  ]}
-                  onPress={() => setBgColor(item.value)}
-                >
-                  <View style={[styles.colorPreviewCircle, { backgroundColor: item.value }]} />
-                  <Text style={styles.colorOptionText}>{item.name}</Text>
-                  {bgColor === item.value && <Text style={styles.checkmark}>✓</Text>}
-                </TouchableOpacity>
-              )}
-            />
+            {/* 🎯 2. เมนูใหม่: เลือกสีไฮไลต์ของช่องวันที่เลือกเพื่อดูรายละเอียดชั้นล่าง */}
+            <Text style={styles.sectionDividerText}>🎨 สีช่องวันที่เลือก (ดูรายละเอียด)</Text>
+            <View style={{ height: 110, marginBottom: 5 }}>
+              <FlatList
+                data={highlightColors}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity 
+                    style={[
+                      styles.colorOptionRow, 
+                      selectedCellColor === item.value && { borderColor: item.value, backgroundColor: '#FAFAFA' },
+                      { borderLeftColor: item.value }
+                    ]}
+                    onPress={() => setSelectedCellColor(item.value)}
+                  >
+                    <View style={[styles.colorPreviewCircle, { backgroundColor: item.value }]} />
+                    <Text style={styles.colorOptionText}>{item.name}</Text>
+                    {selectedCellColor === item.value && <Text style={[styles.checkmark, { color: item.value }]}>✓</Text>}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+
+            {/* 3. เลือกสีพื้นหลังตัวแอป */}
+            <Text style={styles.sectionDividerText}>📱 สีพื้นหลังตัวแอป</Text>
+            <View style={{ height: 110 }}>
+              <FlatList
+                data={themeColors}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity 
+                    style={[
+                      styles.colorOptionRow, 
+                      bgColor === item.value && styles.activeColorOption,
+                      { borderLeftColor: item.value }
+                    ]}
+                    onPress={() => setBgColor(item.value)}
+                  >
+                    <View style={[styles.colorPreviewCircle, { backgroundColor: item.value }]} />
+                    <Text style={styles.colorOptionText}>{item.name}</Text>
+                    {bgColor === item.value && <Text style={styles.checkmark}>✓</Text>}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
 
             <TouchableOpacity style={styles.closeSettingsBtn} onPress={() => setSettingsVisible(false)}>
               <Text style={styles.closeSettingsBtnText}>บันทึกและปิดหน้าต่าง</Text>
@@ -366,7 +403,7 @@ export default function App() {
               <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setModalVisible(false)}>
                 <Text style={styles.btnCancelText}>ยกเลิก</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.btnSave]} onPress={addEvent}>
+              <TouchableOpacity style={[styles.btn, styles.btnSave, { backgroundColor: selectedCellColor }]} onPress={addEvent}>
                 <Text style={styles.btnSaveText}>บันทึก</Text>
               </TouchableOpacity>
             </View>
@@ -401,7 +438,6 @@ const styles = StyleSheet.create({
   emptyCellText: { color: '#E2E8F0', backgroundColor: '#FAFAFA' },
   todayCell: { backgroundColor: '#EDF2F7' },
   todayCellText: { color: '#2B6CB0' },
-  selectedCell: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
   selectedCellText: { color: '#FFFFFF' },
   publicHolidayCell: { backgroundColor: '#FFEBEB' },
   eventDot: { width: 4, height: 4, backgroundColor: '#FF3B30', borderRadius: 2, position: 'absolute', bottom: 2 },
@@ -421,35 +457,32 @@ const styles = StyleSheet.create({
   holidayNameText: { fontSize: 14, fontWeight: '700', color: '#2C3E50' },
   
   eventItemCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: 12, borderRadius: 12, marginBottom: 6, borderWidth: 1, borderColor: '#EDF2F7' },
-  eventIndicator: { width: 3, height: 16, backgroundColor: '#007AFF', borderRadius: 2, marginRight: 10 },
+  eventIndicator: { width: 3, height: 16, borderRadius: 2, marginRight: 10 },
   eventItemText: { fontSize: 14, color: '#4A5568', fontWeight: '500' },
   noEventText: { color: '#A0AEC0', fontSize: 13, textAlign: 'center', marginVertical: 10 },
   
   modalOverlay: { flex: 1, backgroundColor: 'rgba(26, 28, 36, 0.4)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { width: '88%', maxHeight: '85%', backgroundColor: '#FFFFFF', padding: 20, borderRadius: 20, elevation: 10 },
+  modalContent: { width: '88%', maxHeight: '90%', backgroundColor: '#FFFFFF', padding: 20, borderRadius: 20, elevation: 10 },
   modalTitle: { fontSize: 17, fontWeight: '700', color: '#1A1C24', marginBottom: 10 },
-  modalSubtitle: { fontSize: 13, color: '#718096', marginBottom: 12 },
-  sectionDividerText: { fontSize: 14, fontWeight: '700', color: '#4A5568', marginTop: 10, marginBottom: 8 },
+  sectionDividerText: { fontSize: 14, fontWeight: '700', color: '#4A5568', marginTop: 6, marginBottom: 6 },
   input: { backgroundColor: '#F8FAFC', borderRadius: 10, padding: 12, fontSize: 15, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 15 },
   modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
   btn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, marginLeft: 10 },
   btnCancel: { backgroundColor: '#F1F5F9' },
   btnCancelText: { color: '#64748B', fontWeight: '600' },
-  btnSave: { backgroundColor: '#007AFF' },
   btnSaveText: { color: '#FFFFFF', fontWeight: '600' },
 
-  // 🔍 สไตล์ของปุ่มเลือกขนาดหน้าจอ
-  sizeSelectorContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  sizeSelectorContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   sizeBtn: { flex: 1, backgroundColor: '#F1F5F9', paddingVertical: 10, alignItems: 'center', borderRadius: 10, marginHorizontal: 4, borderWidth: 1, borderColor: '#E2E8F0' },
   activeSizeBtn: { backgroundColor: '#007AFF', borderColor: '#007AFF' },
   sizeBtnText: { fontSize: 14, fontWeight: '600', color: '#4A5568' },
   activeSizeBtnText: { color: '#FFFFFF', fontWeight: '700' },
 
-  colorOptionRow: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#F8FAFC', borderRadius: 12, marginBottom: 6, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 6 },
+  colorOptionRow: { flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: '#F8FAFC', borderRadius: 12, marginBottom: 4, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 6 },
   activeColorOption: { borderColor: '#007AFF', backgroundColor: '#F0F7FF' },
-  colorPreviewCircle: { width: 18, height: 18, borderRadius: 9, marginRight: 12, borderWidth: 1, borderColor: '#CBD5E1' },
-  colorOptionText: { fontSize: 14, fontWeight: '600', color: '#334155', flex: 1 },
-  checkmark: { fontSize: 14, color: '#007AFF', fontWeight: '700' },
-  closeSettingsBtn: { backgroundColor: '#007AFF', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 12 },
+  colorPreviewCircle: { width: 16, height: 16, borderRadius: 8, marginRight: 12, borderWidth: 1, borderColor: '#CBD5E1' },
+  colorOptionText: { fontSize: 13, fontWeight: '600', color: '#334155', flex: 1 },
+  checkmark: { fontSize: 14, fontWeight: '700' },
+  closeSettingsBtn: { backgroundColor: '#007AFF', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 14 },
   closeSettingsBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 }
 });
