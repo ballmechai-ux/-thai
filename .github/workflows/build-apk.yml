@@ -2,7 +2,7 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # ระบบจะทำงานทุกครั้งที่คุณอัปเดตโค้ดใน branch main
+      - main
 
 jobs:
   build:
@@ -11,29 +11,39 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-size: 20
-
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build APK (Local Run)
-        run: npx expo export --platform android
-
-      # ขั้นตอนนี้จะใช้คำสั่งคอมไพล์ระบบ Android พื้นฐานออกเป็น APK
-      - name: Setup Java JDK
+      - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+
+      - name: Install dependencies
+        run: npm install
+
+      # สร้างโฟลเดอร์และตั้งค่าฝั่ง Android Native อัตโนมัติก่อน Build
+      - name: Prebuild Android
+        run: npx expo prebuild --platform android
+
+      # สั่งประกอบร่างเป็นไฟล์ APK (Release)
       - name: Build Android App with Gradle
         run: |
-          cd android && ./gradlew assembleRelease || echo "No native android folder yet"
+          cd android
+          ./gradlew assembleRelease
 
-      # (หมายเหตุ: หากโปรเจกต์ของคุณเป็น Expo ล้วนๆ แนะนำให้ใช้คำสั่งด้านล่างนี้แทน)
+      # สำคัญมาก: คำสั่งหยิบไฟล์ .apk ส่งขึ้นมาให้กดดาวน์โหลดที่หน้าเว็บ GitHub
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendar-app-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
