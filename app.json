@@ -4,12 +4,15 @@
     "slug": "calendar-thai",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "icon": "./Icon.png",
     "splash": {
       "image": "./splash.png",
-      "backgroundColor": "#F4F7FA"
+      "backgroundColor": "#000000"
     },
+    "plugins": [
+      "expo-notifications"
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -17,8 +20,9 @@
       "package": "com.ballmechaiux.calendarthai",
       "adaptiveIcon": {
         "foregroundImage": "./Icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#000000"
       }
     }
   }
 }
+
