@@ -3,7 +3,9 @@ import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator, Touch
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
-const dayWidth = (width - 16) / 7;
+// หัก padding ของ contentBody (8*2) + padding ของ calendarCard (4*2) = 24
+const CALENDAR_PADDING = 24;
+const dayWidth = Math.floor((width - CALENDAR_PADDING) / 7);
 
 // ============================================================
 // 🌕 ระบบคำนวณวันพระ + ข้างขึ้นข้างแรม (lunar calendar)
@@ -205,6 +207,9 @@ export default function App() {
       const { lunarText, holidayText, isWanPhra } = getThaiCalendarData(year, month, dayNumber);
       const symbol = lunarSymbol === 'รูปดอกบัว' ? '🪷' : '🌕';
       const isHoliday = holidayText !== '' && showHoliday;
+      // คำนวณว่าวันนี้เป็นวันอะไรในสัปดาห์
+      const dayOfWeek = new Date(year, month, dayNumber).getDay(); // 0=อา, 6=ส
+      const isSunday = dayOfWeek === 0;
 
       dayItems.push(
         <TouchableOpacity
@@ -212,15 +217,19 @@ export default function App() {
           style={[
             styles.dayBox,
             isSelected && { backgroundColor: '#C8E6C9', borderColor: theme.primary, borderWidth: 2 },
-            isHoliday && { backgroundColor: '#FFCDD2' }
+            isHoliday && !isSelected && { backgroundColor: '#FFCDD2' }
           ]}
           onPress={() => setSelectedDay(dayNumber)}
         >
           <View style={styles.dayTopRow}>
-            <Text style={[styles.dayNumberText, isHoliday && { color: '#C62828', fontWeight: 'bold' }]}>
+            <Text style={[
+              styles.dayNumberText,
+              isHoliday && { color: '#C62828' },
+              isSunday && !isHoliday && { color: '#C62828' }
+            ]}>
               {showThaiNumber ? dayNumber.toLocaleString('th-TH-u-nu-thai') : dayNumber}
             </Text>
-            {isWanPhra && <Text style={{ fontSize: 13 }}>{symbol}</Text>}
+            {isWanPhra && <Text style={{ fontSize: 14 }}>{symbol}</Text>}
           </View>
           <Text style={styles.lunarGridText} numberOfLines={1}>{lunarText}</Text>
           {isHoliday && (
@@ -428,20 +437,20 @@ const styles = StyleSheet.create({
   appHeader: { paddingTop: 50, paddingBottom: 15, alignItems: 'center', width: '100%' },
   appHeaderTitle: { fontSize: 15, fontWeight: 'bold' },
   contentBody: { flex: 1, padding: 8 },
-  calendarCard: { borderRadius: 8, padding: 4, marginBottom: 10, elevation: 2 },
-  monthHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, paddingHorizontal: 20, borderBottomWidth: 0.5, borderColor: '#EEE' },
-  monthLabelTitle: { fontSize: 15, fontWeight: 'bold' },
-  arrowBtn: { padding: 10, minWidth: 40, alignItems: 'center' },
-  arrowTxt: { fontSize: 16, fontWeight: 'bold' },
-  weekDaysHeaderRow: { flexDirection: 'row', paddingVertical: 8, backgroundColor: '#FDFDFD' },
-  weekDayLabelText: { width: dayWidth, textAlign: 'center', fontSize: 12, fontWeight: 'bold', color: '#555' },
-  calendarGridContainer: { flexDirection: 'row', flexWrap: 'wrap', width: '100%' },
-  dayBox: { width: dayWidth, height: 80, padding: 4, backgroundColor: '#FFF', borderWidth: 0.3, borderColor: '#DDD', justifyContent: 'space-between' },
-  dayBoxEmpty: { width: dayWidth, height: 80, backgroundColor: '#FAFAFA', borderWidth: 0.3, borderColor: '#DDD' },
+  calendarCard: { borderRadius: 12, padding: 4, marginBottom: 10, elevation: 3, overflow: 'hidden' },
+  monthHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, borderBottomWidth: 0.5, borderColor: '#EEE' },
+  monthLabelTitle: { fontSize: 16, fontWeight: 'bold' },
+  arrowBtn: { padding: 10, minWidth: 44, alignItems: 'center' },
+  arrowTxt: { fontSize: 18, fontWeight: 'bold' },
+  weekDaysHeaderRow: { flexDirection: 'row', paddingVertical: 6, backgroundColor: '#F5F5F5' },
+  weekDayLabelText: { width: dayWidth, textAlign: 'center', fontSize: 13, fontWeight: 'bold', color: '#555' },
+  calendarGridContainer: { flexDirection: 'row', flexWrap: 'wrap', width: dayWidth * 7 },
+  dayBox: { width: dayWidth, height: 88, padding: 5, backgroundColor: '#FFF', borderWidth: 0.3, borderColor: '#DDD', justifyContent: 'flex-start' },
+  dayBoxEmpty: { width: dayWidth, height: 88, backgroundColor: '#FAFAFA', borderWidth: 0.3, borderColor: '#DDD' },
   dayTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' },
-  dayNumberText: { fontSize: 13, color: '#333' },
-  lunarGridText: { fontSize: 9, color: '#666', textAlign: 'left', width: '100%' },
-  holidayGridText: { fontSize: 8, color: '#C62828', fontWeight: 'bold', width: '100%' },
+  dayNumberText: { fontSize: 15, color: '#333', fontWeight: '600' },
+  lunarGridText: { fontSize: 10, color: '#666', textAlign: 'left', width: '100%', marginTop: 2 },
+  holidayGridText: { fontSize: 9, color: '#C62828', fontWeight: 'bold', width: '100%', marginTop: 1 },
   sectionHeaderContainer: { paddingHorizontal: 12, paddingVertical: 10 },
   sectionHeaderText: { fontSize: 12, fontWeight: 'bold', color: '#555' },
   settingRowItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, paddingVertical: 14, borderBottomWidth: 0.5, borderColor: '#EEE' },
