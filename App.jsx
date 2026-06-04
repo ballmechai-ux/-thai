@@ -11,7 +11,7 @@ const THAI_HOLIDAYS = {
   '2026-12-05': 'วันพ่อแห่งชาติ', '2026-12-10': 'วันรัฐธรรมนูญ', '2026-12-31': 'วันสิ้นปี'
 };
 
-// 🟡 ฐานข้อมูลวันพระหลวง ปี พ.ศ. 2569 (แก้ไขอธิกมาสตรงตามปฏิทินของเฮีย 100%)
+// 🟡 ฐานข้อมูลวันพระหลวง ปี พ.ศ. 2569 (ตรงตามหน้าจอปฏิทินเดิมของเฮียเป๊ะๆ)
 const BUDDHIST_DAYS_2026 = {
   '2026-01-03': 'ขึ้น ๑๕ ค่ำ เดือน ๒', '2026-01-11': 'แรม ๘ ค่ำ เดือน ๒', '2026-01-18': 'แรม ๑๕ ค่ำ เดือน ๒', '2026-01-26': 'ขึ้น ๘ ค่ำ เดือน ๓',
   '2026-02-02': 'ขึ้น ๑๕ ค่ำ เดือน ๓', '2026-02-10': 'แรม ๘ ค่ำ เดือน ๓', '2026-02-16': 'แรม ๑๔ ค่ำ เดือน ๓', '2026-02-24': 'ขึ้น ๘ ค่ำ เดือน ๔',
@@ -32,7 +32,7 @@ const WEEKDAYS_TH = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.
 
 export default function App() {
   const [currentYear] = useState(2026);
-  const [currentMonth, setCurrentMonth] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState(5); // โชว์เดือนมิถุนายนเป็นค่าเริ่มต้น
 
   const changeMonth = (direction) => {
     let nextMonth = currentMonth + direction;
@@ -59,23 +59,30 @@ export default function App() {
       const dayStr = String(day).padStart(2, '0');
       const dateKey = `${currentYear}-${monthStr}-${dayStr}`;
 
-      const isBuddhistDay = !!BUDDHIST_DAYS_2026[dateKey];
+      const buddhistDetails = BUDDHIST_DAYS_2026[dateKey];
       const holidayName = THAI_HOLIDAYS[dateKey];
 
       cells.push(
         <TouchableOpacity key={`day-${day}`} style={styles.dayCell} activeOpacity={0.7}>
+          {/* ตัวเลขวันที่อยู่ส่วนบนปกติ */}
           <Text style={styles.dayNumber}>{day}</Text>
           
-          {isBuddhistDay && (
-            <View style={styles.buddhistContainer}>
-              <Text style={styles.buddhistIcon}>🙏🟠</Text>
-              <Text style={styles.buddhistText}>วันพระ</Text>
-            </View>
-          )}
+          {/* ส่วนล่างของช่อง: ฟังก์ชันข้อมูลแสดงวันพระและวันหยุด (เปลี่ยนเป็นอิโมจิดอกบัวเรียบร้อย) */}
+          <View style={styles.cellFooter}>
+            {buddhistDetails && (
+              <View style={styles.buddhistWrapper}>
+                {/* 🪷 คืนค่ารูปดอกบัวตามเดิมของเฮียเป๊ะๆ ไม่พึ่งพิงโมดูลภายนอก */}
+                <Text style={styles.buddhistIcon}>🪷</Text>
+                <Text style={styles.buddhistLabelText}>วันพระ</Text>
+              </View>
+            )}
 
-          {holidayName && (
-            <Text style={styles.holidayText} numberOfLines={1}>{holidayName}</Text>
-          )}
+            {holidayName && (
+              <Text style={styles.holidayText} numberOfLines={1}>
+                {holidayName}
+              </Text>
+            )}
+          </View>
         </TouchableOpacity>
       );
     }
@@ -171,7 +178,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: cellWidth - 4,
-    height: 85,
+    height: 100, // ความสูงเดิมของกล่อง
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e1e4e6',
@@ -179,7 +186,6 @@ const styles = StyleSheet.create({
     margin: 2,
     padding: 4,
     justifyContent: 'space-between',
-    position: 'relative',
   },
   emptyCell: {
     backgroundColor: '#f9fafb',
@@ -190,20 +196,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#444',
   },
-  buddhistContainer: {
+  cellFooter: {
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  buddhistWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
     marginTop: 2,
   },
   buddhistIcon: {
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'center',
   },
-  buddhistText: {
+  buddhistLabelText: {
     fontSize: 9,
     color: '#e67e22',
     fontWeight: 'bold',
     textAlign: 'center',
+    marginTop: 1,
   },
   holidayText: {
     fontSize: 8,
@@ -212,5 +225,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     paddingHorizontal: 2,
     textAlign: 'center',
+    marginTop: 2,
+    width: '100%',
   }
 });
+
