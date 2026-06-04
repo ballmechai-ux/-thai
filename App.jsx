@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
 
 // 📅 ฐานข้อมูลวันหยุดราชการไทย พ.ศ. 2569
 const THAI_HOLIDAYS = {
@@ -30,22 +29,6 @@ const BUDDHIST_DAYS_2026 = {
 
 const MONTH_NAMES_TH = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 const WEEKDAYS_TH = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-
-// 🕉️ คอมโพเนนต์รูปพระพุทธรูปปางสมาธิสีส้ม (ถอดจากรูป 1000031733.jpg ของเฮีย)
-const BuddhaIcon = () => (
-  <View style={styles.buddhaIconWrapper}>
-    <Svg viewBox="0 0 100 100" width="20" height="20">
-      <Path d="M50 15 C52 23 48 23 50 28 Z" fill="#FF8C00"/>
-      <Circle cx="50" cy="34" r="7" fill="#FF8C00"/>
-      <Path d="M42 32 C41 35 43 37 43 37" stroke="#FF8C00" strokeWidth="1.5" fill="none"/>
-      <Path d="M58 32 C59 35 57 37 57 37" stroke="#FF8C00" strokeWidth="1.5" fill="none"/>
-      <Path d="M50 42 L42 46 L38 58 L45 68 L55 68 L62 58 L58 46 Z" fill="#FF8C00"/>
-      <Path d="M42 46 Q48 54 55 68 L45 68 Q41 56 42 46 Z" fill="#FFA500" opacity="0.8"/>
-      <Path d="M30 68 C28 74 38 76 50 76 C62 76 72 74 70 68 C66 65 34 65 30 68 Z" fill="#FF8C00"/>
-      <Circle cx="50" cy="65" r="4" fill="#FFA500"/>
-    </Svg>
-  </View>
-);
 
 export default function App() {
   const [currentYear] = useState(2026);
@@ -84,10 +67,10 @@ export default function App() {
           <Text style={styles.dayNumber}>{day}</Text>
           
           {isBuddhistDay && (
-            <>
-              <BuddhaIcon />
-              <Text style={styles.buddhistText}>🙏 พระ</Text>
-            </>
+            <View style={styles.buddhistContainer}>
+              <Text style={styles.buddhistIcon}>🙏🟠</Text>
+              <Text style={styles.buddhistText}>วันพระ</Text>
+            </View>
           )}
 
           {holidayName && (
@@ -207,10 +190,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#444',
   },
+  buddhistContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  buddhistIcon: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
   buddhistText: {
     fontSize: 9,
     color: '#e67e22',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   holidayText: {
     fontSize: 8,
@@ -219,10 +212,5 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     paddingHorizontal: 2,
     textAlign: 'center',
-  },
-  buddhaIconWrapper: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
   }
 });
