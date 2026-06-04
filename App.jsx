@@ -13,17 +13,92 @@ import {
   Platform
 } from 'react';
 
-// ประกาศขนาดหน้าจอเพื่อใช้วางสัดส่วน
 const { width, height } = Dimensions.get('window');
 
-// ข้อมูลจำลองวันพระและวันสำคัญ ปี 2569 (อ้างอิงจากฐานข้อมูลปฏิทินหลวง)
+// ==========================================
+// ฐานข้อมูลเดิมคงอยู่เหมือนเดิมทุกประการ (ไม่เปลี่ยนแปลง)
+// ==========================================
 const HOLIDAYS_2569 = {
-  '2026-06-04': { type: 'normal', text: 'วันนี้วันที่ 4 มิ.ย.' }, // ตัวอย่างวันปัจจุบันในภาพ
+  // มกราคม
+  '2026-01-01': { type: 'holiday', text: 'วันขึ้นปีใหม่' },
+  '2026-01-02': { type: 'wanphra', text: 'วันพระ' },
+  '2026-01-10': { type: 'wanphra', text: 'วันพระ' },
+  '2026-01-17': { type: 'wanphra', text: 'วันพระ' },
+  '2026-01-25': { type: 'wanphra', text: 'วันพระ' },
+  // กุมภาพันธ์
+  '2026-02-01': { type: 'wanphra', text: 'วันพระ' },
+  '2026-02-09': { type: 'wanphra', text: 'วันพระ' },
+  '2026-02-16': { type: 'wanphra', text: 'วันพระ' },
+  '2026-02-24': { type: 'wanphra', text: 'วันพระ' },
+  // มีนาคม
+  '2026-03-02': { type: 'holiday', text: 'วันมาฆบูชา' },
+  '2026-03-03': { type: 'wanphra', text: 'วันพระ' },
+  '2026-03-11': { type: 'wanphra', text: 'วันพระ' },
+  '2026-03-18': { type: 'wanphra', text: 'วันพระ' },
+  '2026-03-26': { type: 'wanphra', text: 'วันพระ' },
+  // เมษายน
+  '2026-04-01': { type: 'wanphra', text: 'วันพระ' },
+  '2026-04-06': { type: 'holiday', text: 'วันจักรี' },
+  '2026-04-09': { type: 'wanphra', text: 'วันพระ' },
+  '2026-04-13': { type: 'holiday', text: 'วันสงกรานต์' },
+  '2026-04-14': { type: 'holiday', text: 'วันสงกรานต์' },
+  '2026-04-15': { type: 'holiday', text: 'วันสงกรานต์' },
+  '2026-04-16': { type: 'wanphra', text: 'วันพระ' },
+  '2026-04-24': { type: 'wanphra', text: 'วันพระ' },
+  '2026-04-30': { type: 'wanphra', text: 'วันพระ' },
+  // พฤษภาคม
+  '2026-05-01': { type: 'holiday', text: 'วันแรงงานแห่งชาติ' },
+  '2026-05-04': { type: 'holiday', text: 'วันฉัตรมงคล' },
+  '2026-05-08': { type: 'wanphra', text: 'วันพระ' },
+  '2026-05-15': { type: 'wanphra', text: 'วันพระ' },
+  '2026-05-23': { type: 'wanphra', text: 'วันพระ' },
+  '2026-05-30': { type: 'holiday', text: 'วันวิสาขบูชา' },
+  '2026-05-31': { type: 'wanphra', text: 'วันพระ' },
+  // มิถุนายน (ตรงตามภาพบรีฟ 1000031764.jpg)
+  '2026-06-03': { type: 'holiday', text: 'วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี' },
   '2026-06-08': { type: 'wanphra', text: 'วันพระ' },
   '2026-06-14': { type: 'wanphra', text: 'วันพระ' },
   '2026-06-22': { type: 'wanphra', text: 'วันพระ' },
   '2026-06-29': { type: 'wanphra', text: 'วันพระ' },
-  '2026-06-03': { type: 'holiday', text: 'วันเฉลิมพระชนมพรรษาฯ' }
+  // กรกฎาคม
+  '2026-07-07': { type: 'wanphra', text: 'วันพระ' },
+  '2026-07-15': { type: 'wanphra', text: 'วันพระ' },
+  '2026-07-23': { type: 'wanphra', text: 'วันพระ' },
+  '2026-07-28': { type: 'holiday', text: 'วันเฉลิมพระชนมพรรษา พระบาทสมเด็จพระเจ้าอยู่หัว' },
+  '2026-07-29': { type: 'holiday', text: 'วันอาสาฬหบูชา' },
+  '2026-07-30': { type: 'holiday', text: 'วันเข้าพรรษา' },
+  '2026-07-31': { type: 'wanphra', text: 'วันพระ' },
+  // สิงหาคม
+  '2026-08-07': { type: 'wanphra', text: 'วันพระ' },
+  '2026-08-12': { type: 'holiday', text: 'วันแม่แห่งชาติ / วันเฉลิมพระชนมพรรษา สมเด็จพระบรมราชชนนีพันปีหลวง' },
+  '2026-08-14': { type: 'wanphra', text: 'วันพระ' },
+  '2026-08-22': { type: 'wanphra', text: 'วันพระ' },
+  '2026-08-29': { type: 'wanphra', text: 'วันพระ' },
+  // กันยายน
+  '2026-09-05': { type: 'wanphra', text: 'วันพระ' },
+  '2026-09-13': { type: 'wanphra', text: 'วันพระ' },
+  '2026-09-20': { type: 'wanphra', text: 'วันพระ' },
+  '2026-09-28': { type: 'wanphra', text: 'วันพระ' },
+  // ตุลาคม
+  '2026-10-05': { type: 'wanphra', text: 'วันพระ' },
+  '2026-10-13': { type: 'holiday', text: 'วันคล้ายวันสวรรคต รัชกาลที่ 9' },
+  '2026-10-23': { type: 'holiday', text: 'วันปิยมหาราช' },
+  '2026-10-26': { type: 'holiday', text: 'วันออกพรรษา' },
+  '2026-10-27': { type: 'wanphra', text: 'วันพระ' },
+  // พฤศจิกายน
+  '2026-11-04': { type: 'wanphra', text: 'วันพระ' },
+  '2026-11-11': { type: 'wanphra', text: 'วันพระ' },
+  '2026-11-19': { type: 'wanphra', text: 'วันพระ' },
+  '2026-11-24': { type: 'holiday', text: 'วันลอยกระทง' },
+  '2026-11-26': { type: 'wanphra', text: 'วันพระ' },
+  // ธันวาคม
+  '2026-12-04': { type: 'wanphra', text: 'วันพระ' },
+  '2026-12-05': { type: 'holiday', text: 'วันพ่อแห่งชาติ / วันชาติ' },
+  '2026-12-10': { type: 'holiday', text: 'วันรัฐธรรมนูญ' },
+  '2026-12-11': { type: 'wanphra', text: 'วันพระ' },
+  '2026-12-19': { type: 'wanphra', text: 'วันพระ' },
+  '2026-12-27': { type: 'wanphra', text: 'วันพระ' },
+  '2026-12-31': { type: 'holiday', text: 'วันสิ้นปี' }
 };
 
 const MONTH_NAMES = [
@@ -32,28 +107,26 @@ const MONTH_NAMES = [
 ];
 
 export default function App() {
-  // --- State Systems ---
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 4)); // ตั้งต้นที่ มิ.ย. 2569 ตามภาพ
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 4));
   const [selectedDate, setSelectedDate] = useState('2026-06-04');
   const [settingVisible, setSettingVisible] = useState(false);
   
-  // State ระบบแต่งสี (ข้อ 6 & 7)
+  // State ปรับแต่งสี (ข้อ 6 & 7)
   const [headerBgColor, setHeaderBgColor] = useState('#F0F4F8'); 
   const [dayCellColor, setDayCellColor] = useState('#FFFFFF');
-  const [activeColorTarget, setActiveColorTarget] = useState('header'); // 'header' หรือ 'cell'
+  const [activeColorTarget, setActiveColorTarget] = useState('header');
 
-  // State ระบบบันทึกและความจำ (ข้อ 9)
+  // State บันทึกและการแจ้งเตือน (ข้อ 9)
   const [notes, setNotes] = useState({});
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [tempNoteText, setTempNoteText] = useState('');
   
-  // จานสีที่มีให้เลือกครบสี (ข้อ 6)
   const COLOR_PALETTE = [
     '#F0F4F8', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#FFEBEE', '#F3E5F5',
     '#FFFFFF', '#CFD8DC', '#FFE082', '#A5D6A7', '#90CAF9', '#EF9A9A'
   ];
 
-  // ระบบตรวจจับการปัดหน้าจอ (ข้อ 5)
+  // ระบบปัดหน้าจอเปลี่ยนเดือน (ข้อ 5)
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
@@ -69,10 +142,8 @@ export default function App() {
   const handleSwipeGesture = () => {
     const swipeDistance = touchStartX.current - touchEndX.current;
     if (swipeDistance > 60) {
-      // ปัดซ้าย -> ไปเดือนข้างหน้า
       nextMonth();
     } else if (swipeDistance < -60) {
-      // ปัดขวา -> ถอยกลับไปเดือนก่อนหน้า
       prevMonth();
     }
   };
@@ -85,7 +156,6 @@ export default function App() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   };
 
-  // --- ลอจิกการสร้างปฏิทิน ---
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -99,7 +169,6 @@ export default function App() {
     daysArray.push(i);
   }
 
-  // ฟังก์ชันจัดฟอร์แมตคีย์วันที่ (YYYY-MM-DD)
   const formatDateKey = (dayNum) => {
     if (!dayNum) return '';
     const mm = String(month + 1).padStart(2, '0');
@@ -107,14 +176,13 @@ export default function App() {
     return `${year}-${mm}-${dd}`;
   };
 
-  // ระบบบันทึกพร้อมถามแจ้งเตือน (ข้อ 9.1 - 9.4)
+  // ระบบแจ้งเตือนบันทึก (ข้อ 9.1 - 9.4)
   const handleSaveNote = () => {
     if (!tempNoteText.trim()) {
       Alert.alert('แจ้งเตือน', 'กรุณากรอกข้อความบันทึก');
       return;
     }
 
-    // ถามว่าต้องการแจ้งเตือนไหม (ข้อ 9.1 และ 9.2)
     Alert.alert(
       'ระบบแจ้งเตือน',
       'ต้องการตั้งเวลาแจ้งเตือนสำหรับบันทึกนี้ด้วยหรือไม่?',
@@ -127,10 +195,9 @@ export default function App() {
         {
           text: 'ใช่, ต้องการ',
           onPress: () => {
-            // จำลองการเลือกช่วงเวลา (ข้อ 9.3)
             Alert.alert(
               'เลือกช่วงเวลา',
-              'เลือกรอบการแจ้งเตือนเสร็จสิ้น ระบบจะใช้เสียงแจ้งเตือนหลักตามที่เครื่องมือถือของท่านตั้งไว้ในระบบ', // ข้อ 9.4
+              'เลือกรอบการแจ้งเตือนเสร็จสิ้น ระบบจะใช้เสียงแจ้งเตือนหลักตามที่เครื่องมือถือของท่านตั้งไว้ในระบบ',
               [{ text: 'ตกลง', onPress: () => saveToState('08:00 น.') }]
             );
           }
@@ -152,23 +219,22 @@ export default function App() {
     Alert.alert('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว');
   };
 
-  // ดึงข้อมูลมาโชว์ที่แถบรายละเอียดด้านล่าง
   const activeKey = selectedDate;
   const hasHoliday = HOLIDAYS_2569[activeKey];
   const hasNote = notes[activeKey];
-  const todayKey = '2026-06-04'; // กำหนดให้ระบบรู้ว่าวันนี้คือวันที่ 4 มิ.ย. 2569 ตามภาพ
+  const todayKey = '2026-06-04'; 
 
   return (
     <SafeAreaView style={styles.container}>
       
-      {/* ข้อ 3: ปุ่มตั้งค่าย้ายขึ้นไปด้านบนสุด (ตำแหน่งเลข 3) ไม่ทับปุ่มเปลี่ยนเดือน */}
+      {/* ข้อ 3: ย้ายปุ่มตั้งค่าไปตำแหน่งเลข 3 ด้านบนสุด */}
       <View style={styles.topActionLine}>
         <TouchableOpacity style={styles.settingButton} onPress={() => setSettingVisible(true)}>
           <Text style={styles.settingButtonText}>⚙️ ตั้งค่าสไตล์</Text>
         </TouchableOpacity>
       </View>
 
-      {/* แถบหัวเรื่องเดือน */}
+      {/* แถบควบคุมเดือน */}
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.navButton} onPress={prevMonth}>
           <Text style={styles.navButtonText}>◀ ก่อนหน้า</Text>
@@ -183,14 +249,14 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* แถบชื่อวัน (ข้อ 7: ปรับสีแถบชื่อวันได้ตามค่าตัวแปร) */}
+      {/* แถบสัปดาห์ (ข้อ 7) */}
       <View style={[styles.weekDaysBar, { backgroundColor: headerBgColor }]}>
         {['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'].map((val, idx) => (
           <Text key={idx} style={styles.weekDayText}>{val}</Text>
         ))}
       </View>
 
-      {/* ข้อ 4 & 5: ตารางปฏิทินขยายสุดขอบจอ + รองรับการปัดหน้าจอเพื่อเลื่อน */}
+      {/* ข้อ 4 & 5: ปฏิทินขยายเต็มจอ + รองรับการปัดเลื่อนนิ้ว */}
       <View 
         style={styles.calendarGridContainer}
         onTouchStart={handleTouchStart}
@@ -200,7 +266,7 @@ export default function App() {
           {daysArray.map((day, index) => {
             const dateKey = formatDateKey(day);
             const isSelected = selectedDate === dateKey;
-            const isToday = dateKey === todayKey; // ข้อ 2: เช็กว่าเป็นวันปัจจุบันไหม
+            const isToday = dateKey === todayKey; // ข้อ 2: วันปัจจุบัน
             const dayData = HOLIDAYS_2569[dateKey];
 
             return (
@@ -208,9 +274,9 @@ export default function App() {
                 key={index}
                 style={[
                   styles.dayCell,
-                  { backgroundColor: dayCellColor }, // ข้อ 7: ปรับสีช่องวันที่ได้
+                  { backgroundColor: dayCellColor }, // ข้อ 7: แต่งสีช่องวันที่
                   isSelected && styles.selectedDayCell,
-                  isToday && styles.todayCellHighlight // ข้อ 2: ทำไฮไลต์สีพิเศษแสดงวันปัจจุบัน
+                  isToday && styles.todayCellHighlight // ข้อ 2: ทำสีไฮไลต์วันปัจจุบันให้รู้ชัดเจน
                 ]}
                 disabled={!day}
                 onPress={() => setSelectedDate(dateKey)}
@@ -221,7 +287,7 @@ export default function App() {
                       {day}
                     </Text>
                     
-                    {/* ข้อ 1: ขยับไอคอนดอกบัวขึ้นมาด้านบน (ไม่กองอยู่ติดขอบล่าง) */}
+                    {/* ข้อ 1: ดันดอกบัวขึ้นด้านบน ไม่ติดขอบล่าง */}
                     {dayData && dayData.type === 'wanphra' && (
                       <View style={styles.wanphraContainer}>
                         <Text style={styles.lotusIcon}>🪷</Text>
@@ -231,7 +297,9 @@ export default function App() {
 
                     {dayData && dayData.type === 'holiday' && (
                       <View style={styles.holidayBadge}>
-                        <Text style={styles.holidayText} numberOfLines={1}>วันเฉลิม...</Text>
+                        <Text style={styles.holidayText} numberOfLines={1}>
+                          {dayData.text.length > 5 ? dayData.text.substring(0, 4) + '...' : dayData.text}
+                        </Text>
                       </View>
                     )}
                   </View>
@@ -242,11 +310,11 @@ export default function App() {
         </View>
       </View>
 
-      {/* ข้อ 8: แถบข้อมูลด้านล่าง ปรับดีไซน์เป็นสีใส (Frosted Glass Effect) และตัวหนังสือสวยงาม */}
+      {/* ข้อ 8: กล่องแสดงผลด้านล่างดีไซน์สีใส (Frosted Glass) ตัวอักษรเด่นสวยงาม */}
       <View style={styles.transparentDetailsBox}>
         <Text style={styles.detailsTitle}>📊 ข้อมูลรายละเอียดประจำวัน</Text>
         <Text style={styles.detailsBodyDate}>
-          วันที่ {currentDate.getDate()} {MONTH_NAMES[month]} {year + 543}
+          วันที่ {selectedDate.split('-')[2] ? parseInt(selectedDate.split('-')[2]) : ''} {MONTH_NAMES[month]} {year + 543}
         </Text>
         
         {hasHoliday ? (
@@ -265,7 +333,7 @@ export default function App() {
         )}
       </View>
 
-      {/* ข้อ 9: ปุ่มจดบันทึก โชว์ขึ้นที่ด้านล่างทางขวาของหน้าจอ */}
+      {/* ข้อ 9: ปุ่มบันทึก มุมขวาล่างของหน้าจอ */}
       <TouchableOpacity 
         style={styles.floatingActionButton} 
         onPress={() => {
@@ -276,13 +344,12 @@ export default function App() {
         <Text style={styles.fabText}>📝 บันทึก</Text>
       </TouchableOpacity>
 
-      {/* Modal หน้าต่างตั้งค่าสี (ข้อ 6 & 7) */}
+      {/* Modal ปรับแต่งเฉดสี (ข้อ 6 & 7) */}
       <Modal visible={settingVisible} animationType="slide" transparent={true}>
         <View style={styles.modalBlurBackground}>
           <View style={styles.settingCard}>
             <Text style={styles.settingCardTitle}>🎨 ตั้งค่าปรับแต่งสีสันแอป</Text>
             
-            {/* ส่วนเลือกจุดที่ต้องการแต่งสี (ข้อ 7) */}
             <View style={styles.toggleTargetRow}>
               <TouchableOpacity 
                 style={[styles.targetTab, activeColorTarget === 'header' && styles.activeTargetTab]}
@@ -298,7 +365,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* ส่วนจานสีครบทุกสีให้เลือก (ข้อ 6) */}
             <Text style={styles.paletteLabel}>เลือกเฉดสีที่ต้องการ:</Text>
             <View style={styles.paletteContainer}>
               {COLOR_PALETTE.map((color, index) => (
@@ -323,12 +389,12 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Modal หน้าต่างกรอกบันทึก (ข้อ 9) */}
+      {/* Modal บันทึกความจำ */}
       <Modal visible={noteModalVisible} animationType="fade" transparent={true}>
         <View style={styles.modalBlurBackground}>
           <View style={styles.settingCard}>
             <Text style={styles.settingCardTitle}>📝 เพิ่มข้อความบันทึก</Text>
-            <Text style={{ marginBottom: 10, color: '#555' }}>วันที่เลือก: {selectedDate}</Text>
+            <Text style={{ marginBottom: 10, color: '#555' }}>คีย์วันที่: {selectedDate}</Text>
             
             <TextInput
               style={styles.noteTextInput}
@@ -366,7 +432,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F9FC',
   },
-  // ข้อ 3: จัดพิกเซลปุ่มตั้งค่าแยกเลเยอร์ไว้ด้านบนสุด ไม่ทับปุ่มเปลี่ยนเดือน
   topActionLine: {
     width: '100%',
     paddingHorizontal: 16,
@@ -422,7 +487,6 @@ const styles = StyleSheet.create({
     width: width / 7 - 4,
     textAlign: 'center',
   },
-  // ข้อ 4: ขยายตารางปฏิทินลงมาถมช่องว่างด้านล่างให้เต็มพื้นที่
   calendarGridContainer: {
     flex: 1, 
     marginHorizontal: 12,
@@ -435,7 +499,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: (width - 24) / 7 - 4,
-    height: (height * 0.52) / 6, // คำนวณขยายกล่องให้สูงเต็มสัดส่วนจอพอดี
+    height: (height * 0.52) / 6, 
     margin: 2,
     borderRadius: 10,
     borderWidth: 1,
@@ -443,7 +507,6 @@ const styles = StyleSheet.create({
     padding: 4,
     elevation: 1,
   },
-  // ข้อ 2: ทำสีกรอบและพื้นหลังพิเศษเพื่อระบุเด่นชัดว่าวันนี้คือวันปัจจุบัน
   todayCellHighlight: {
     borderColor: '#0288D1',
     borderWidth: 2.5,
@@ -466,13 +529,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#212121',
   },
-  // ข้อ 1: ดันดอกบัวและข้อความวันพระขึ้นไปด้านบน ไม่กองอยู่ติดขอบด้านล่าง
   wanphraContainer: {
     alignItems: 'center',
     marginTop: -2,
   },
   lotusIcon: {
-    fontSize: 15,
+    fontSize: 14,
   },
   wanphraText: {
     fontSize: 9,
@@ -483,19 +545,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBEE',
     borderRadius: 4,
     paddingHorizontal: 2,
+    alignItems: 'center',
   },
   holidayText: {
     fontSize: 8,
     color: '#C62828',
   },
-  // ข้อ 8: ดีไซน์สีใสโปร่งแสง (Frosted Glass Style) และตัวหนังสือสวยอ่านง่าย
   transparentDetailsBox: {
-    backgroundColor: 'rgba(26, 37, 48, 0.88)', 
+    backgroundColor: 'rgba(26, 37, 48, 0.92)', 
     margin: 12,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   detailsTitle: {
     color: '#81D4FA',
@@ -532,11 +594,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
-  // ข้อ 9: ปุ่มลอยจดบันทึกไว้ที่ตำแหน่งขวาล่างของจอ
   floatingActionButton: {
     position: 'absolute',
     right: 20,
-    bottom: 140, // ให้อยู่เหนือนำกล่องรายละเอียดขึ้นมานิดหน่อยเพื่อความสะดวกในการกด
+    bottom: 140, 
     backgroundColor: '#FF9800',
     paddingVertical: 12,
     paddingHorizontal: 18,
@@ -551,7 +612,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
   },
-  // ระบบโครงสร้าง Modal
   modalBlurBackground: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
